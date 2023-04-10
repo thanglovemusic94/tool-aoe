@@ -15,6 +15,7 @@ import ErrorBoundaryRoutes from 'app/shared/error/error-boundary-routes';
 import PageNotFound from 'app/shared/error/page-not-found';
 import { AUTHORITIES } from 'app/config/constants';
 import AoeHome from 'app/modules/aoe/aoe-home';
+import Chamdiem from 'app/modules/aoe/chamdiem';
 
 const loading = <div>loading ...</div>;
 
@@ -33,6 +34,7 @@ const AppRoutes = () => {
     <div className="view-routes">
       <ErrorBoundaryRoutes>
         <Route path={'aoe-home'} element={<AoeHome />} />
+        <Route path={'cham-diem'} element={<Chamdiem />} />
         <Route index element={<Home />} />
         <Route path="login" element={<Login />} />
         <Route path="logout" element={<Logout />} />
