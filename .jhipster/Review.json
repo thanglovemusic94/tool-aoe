@@ -1,0 +1,47 @@
+{
+  "applications": "*",
+  "changelogDate": "20230412160609",
+  "dto": "no",
+  "embedded": false,
+  "entityTableName": "review",
+  "fields": [
+    {
+      "fieldName": "point",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["min", "max"],
+      "fieldValidateRulesMax": "10",
+      "fieldValidateRulesMin": "0"
+    },
+    {
+      "fieldName": "userReviewId",
+      "fieldType": "Integer"
+    },
+    {
+      "fieldName": "type",
+      "fieldType": "Type",
+      "fieldValues": "THAO_TAC_TAY,EP_DOI,PHAT_TRIEN,THU_NHA,CHIEN_THUAT"
+    },
+    {
+      "fieldName": "startDate",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "endDate",
+      "fieldType": "Instant"
+    }
+  ],
+  "fluentMethods": true,
+  "jpaMetamodelFiltering": false,
+  "name": "Review",
+  "pagination": "no",
+  "readOnly": false,
+  "relationships": [
+    {
+      "otherEntityField": "inGame",
+      "otherEntityName": "applicationUser",
+      "relationshipName": "ppplicationUser",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "service": "no"
+}
