@@ -1,38 +1,34 @@
 
-//application {
-//    config {
-//        skipUserManagement true
-//    }
-//    entities *
-//}
-
 entity Review {
     point Integer min(0) max(10),
     userReviewId Integer ,
-    type Type
-    startDate Instant,
-    endDate Instant,
+    type Type,
+    status XacNhan
 }
 entity ApplicationUser {
     inGame String maxlength(50) unique,
-    name String maxlength(50) unique,
+    zaloName String maxlength(50) unique,
     phone String maxlength(11) unique
     age Integer min(6) max(90),
-    startDate Instant,
-    endDate Instant
+    fullName String maxlength(50) unique
 }
 
 relationship OneToOne {
-    ApplicationUser{user(id)} to User
+    ApplicationUser{user(login)} to User
 }
 
+//relationship OneToMany {
+//    User{applicationUser} to ApplicationUser{user(firstName)}
+//}
 
 relationship ManyToOne {
     Review{ApplicationUser(inGame)} to ApplicationUser
 }
-//relationship ManyToOne {
-//    Review{assignedTo(login)} to User
-//}
+
+enum XacNhan {
+    Da_Xac_Nhan, Chua_Xac_Nhan
+}
+
 enum Type {
     THAO_TAC_TAY, EP_DOI, PHAT_TRIEN, THU_NHA, CHIEN_THUAT
 }
@@ -40,6 +36,9 @@ enum Type {
 //relationship OneToMany {
 //    User{review} to Review{assignedTo(login)}
 //}
-//paginate * with pagination
-//service all with serviceImpl
+
+
+dto all with mapstruct
+paginate  * with pagination
+service all with serviceImpl
 

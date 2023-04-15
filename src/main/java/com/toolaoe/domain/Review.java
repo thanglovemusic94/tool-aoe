@@ -2,8 +2,8 @@ package com.toolaoe.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.toolaoe.domain.enumeration.Type;
+import com.toolaoe.domain.enumeration.XacNhan;
 import java.io.Serializable;
-import java.time.Instant;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 
@@ -35,15 +35,13 @@ public class Review implements Serializable {
     @Column(name = "type")
     private Type type;
 
-    @Column(name = "start_date")
-    private Instant startDate;
-
-    @Column(name = "end_date")
-    private Instant endDate;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private XacNhan status;
 
     @ManyToOne
     @JsonIgnoreProperties(value = { "user" }, allowSetters = true)
-    private ApplicationUser ppplicationUser;
+    private ApplicationUser applicationUser;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -99,42 +97,29 @@ public class Review implements Serializable {
         this.type = type;
     }
 
-    public Instant getStartDate() {
-        return this.startDate;
+    public XacNhan getStatus() {
+        return this.status;
     }
 
-    public Review startDate(Instant startDate) {
-        this.setStartDate(startDate);
+    public Review status(XacNhan status) {
+        this.setStatus(status);
         return this;
     }
 
-    public void setStartDate(Instant startDate) {
-        this.startDate = startDate;
+    public void setStatus(XacNhan status) {
+        this.status = status;
     }
 
-    public Instant getEndDate() {
-        return this.endDate;
+    public ApplicationUser getApplicationUser() {
+        return this.applicationUser;
     }
 
-    public Review endDate(Instant endDate) {
-        this.setEndDate(endDate);
-        return this;
+    public void setApplicationUser(ApplicationUser applicationUser) {
+        this.applicationUser = applicationUser;
     }
 
-    public void setEndDate(Instant endDate) {
-        this.endDate = endDate;
-    }
-
-    public ApplicationUser getPpplicationUser() {
-        return this.ppplicationUser;
-    }
-
-    public void setPpplicationUser(ApplicationUser applicationUser) {
-        this.ppplicationUser = applicationUser;
-    }
-
-    public Review ppplicationUser(ApplicationUser applicationUser) {
-        this.setPpplicationUser(applicationUser);
+    public Review applicationUser(ApplicationUser applicationUser) {
+        this.setApplicationUser(applicationUser);
         return this;
     }
 
@@ -165,8 +150,7 @@ public class Review implements Serializable {
             ", point=" + getPoint() +
             ", userReviewId=" + getUserReviewId() +
             ", type='" + getType() + "'" +
-            ", startDate='" + getStartDate() + "'" +
-            ", endDate='" + getEndDate() + "'" +
+            ", status='" + getStatus() + "'" +
             "}";
     }
 }

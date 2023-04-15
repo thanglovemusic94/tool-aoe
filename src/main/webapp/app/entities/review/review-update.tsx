@@ -12,6 +12,7 @@ import { IApplicationUser } from 'app/shared/model/application-user.model';
 import { getEntities as getApplicationUsers } from 'app/entities/application-user/application-user.reducer';
 import { IReview } from 'app/shared/model/review.model';
 import { Type } from 'app/shared/model/enumerations/type.model';
+import { XacNhan } from 'app/shared/model/enumerations/xac-nhan.model';
 import { getEntity, updateEntity, createEntity, reset } from './review.reducer';
 
 export const ReviewUpdate = () => {
@@ -28,9 +29,10 @@ export const ReviewUpdate = () => {
   const updating = useAppSelector(state => state.review.updating);
   const updateSuccess = useAppSelector(state => state.review.updateSuccess);
   const typeValues = Object.keys(Type);
+  const xacNhanValues = Object.keys(XacNhan);
 
   const handleClose = () => {
-    navigate('/review');
+    navigate('/review' + location.search);
   };
 
   useEffect(() => {
@@ -50,13 +52,10 @@ export const ReviewUpdate = () => {
   }, [updateSuccess]);
 
   const saveEntity = values => {
-    values.startDate = convertDateTimeToServer(values.startDate);
-    values.endDate = convertDateTimeToServer(values.endDate);
-
     const entity = {
       ...reviewEntity,
       ...values,
-      ppplicationUser: applicationUsers.find(it => it.id.toString() === values.ppplicationUser.toString()),
+      applicationUser: applicationUsers.find(it => it.id.toString() === values.applicationUser.toString()),
     };
 
     if (isNew) {
@@ -68,16 +67,12 @@ export const ReviewUpdate = () => {
 
   const defaultValues = () =>
     isNew
-      ? {
-          startDate: displayDefaultDateTime(),
-          endDate: displayDefaultDateTime(),
-        }
+      ? {}
       : {
           type: 'THAO_TAC_TAY',
+          status: 'Da_Xac_Nhan',
           ...reviewEntity,
-          startDate: convertDateTimeFromServer(reviewEntity.startDate),
-          endDate: convertDateTimeFromServer(reviewEntity.endDate),
-          ppplicationUser: reviewEntity?.ppplicationUser?.id,
+          applicationUser: reviewEntity?.applicationUser?.id,
         };
 
   return (
@@ -131,27 +126,18 @@ export const ReviewUpdate = () => {
                   </option>
                 ))}
               </ValidatedField>
+              <ValidatedField label={translate('toolaoeApp.review.status')} id="review-status" name="status" data-cy="status" type="select">
+                {xacNhanValues.map(xacNhan => (
+                  <option value={xacNhan} key={xacNhan}>
+                    {translate('toolaoeApp.XacNhan.' + xacNhan)}
+                  </option>
+                ))}
+              </ValidatedField>
               <ValidatedField
-                label={translate('toolaoeApp.review.startDate')}
-                id="review-startDate"
-                name="startDate"
-                data-cy="startDate"
-                type="datetime-local"
-                placeholder="YYYY-MM-DD HH:mm"
-              />
-              <ValidatedField
-                label={translate('toolaoeApp.review.endDate')}
-                id="review-endDate"
-                name="endDate"
-                data-cy="endDate"
-                type="datetime-local"
-                placeholder="YYYY-MM-DD HH:mm"
-              />
-              <ValidatedField
-                id="review-ppplicationUser"
-                name="ppplicationUser"
-                data-cy="ppplicationUser"
-                label={translate('toolaoeApp.review.ppplicationUser')}
+                id="review-applicationUser"
+                name="applicationUser"
+                data-cy="applicationUser"
+                label={translate('toolaoeApp.review.applicationUser')}
                 type="select"
               >
                 <option value="" key="0" />

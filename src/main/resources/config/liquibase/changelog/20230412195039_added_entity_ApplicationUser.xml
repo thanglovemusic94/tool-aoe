@@ -17,8 +17,8 @@
             <column name="in_game" type="varchar(50)">
                 <constraints nullable="true" unique="true" uniqueConstraintName="ux_application_user__in_game" />
             </column>
-            <column name="name" type="varchar(50)">
-                <constraints nullable="true" unique="true" uniqueConstraintName="ux_application_user__name" />
+            <column name="zalo_name" type="varchar(50)">
+                <constraints nullable="true" unique="true" uniqueConstraintName="ux_application_user__zalo_name" />
             </column>
             <column name="phone" type="varchar(11)">
                 <constraints nullable="true" unique="true" uniqueConstraintName="ux_application_user__phone" />
@@ -26,19 +26,14 @@
             <column name="age" type="integer">
                 <constraints nullable="true" />
             </column>
-            <column name="start_date" type="${datetimeType}">
-                <constraints nullable="true" />
-            </column>
-            <column name="end_date" type="${datetimeType}">
-                <constraints nullable="true" />
+            <column name="full_name" type="varchar(50)">
+                <constraints nullable="true" unique="true" uniqueConstraintName="ux_application_user__full_name" />
             </column>
             <column name="user_id" type="bigint">
                 <constraints nullable="true" unique="true" uniqueConstraintName="ux_application_user__user_id" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
-        <dropDefaultValue tableName="application_user" columnName="start_date" columnDataType="${datetimeType}"/>
-        <dropDefaultValue tableName="application_user" columnName="end_date" columnDataType="${datetimeType}"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
@@ -59,11 +54,10 @@
                   usePreparedStatements="true">
             <column name="id" type="numeric"/>
             <column name="in_game" type="string"/>
-            <column name="name" type="string"/>
+            <column name="zalo_name" type="string"/>
             <column name="phone" type="string"/>
             <column name="age" type="numeric"/>
-            <column name="start_date" type="date"/>
-            <column name="end_date" type="date"/>
+            <column name="full_name" type="string"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
         </loadData>
     </changeSet>

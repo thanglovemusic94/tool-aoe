@@ -1,7 +1,6 @@
 package com.toolaoe.domain;
 
 import java.io.Serializable;
-import java.time.Instant;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 
@@ -26,8 +25,8 @@ public class ApplicationUser implements Serializable {
     private String inGame;
 
     @Size(max = 50)
-    @Column(name = "name", length = 50, unique = true)
-    private String name;
+    @Column(name = "zalo_name", length = 50, unique = true)
+    private String zaloName;
 
     @Size(max = 11)
     @Column(name = "phone", length = 11, unique = true)
@@ -38,11 +37,9 @@ public class ApplicationUser implements Serializable {
     @Column(name = "age")
     private Integer age;
 
-    @Column(name = "start_date")
-    private Instant startDate;
-
-    @Column(name = "end_date")
-    private Instant endDate;
+    @Size(max = 50)
+    @Column(name = "full_name", length = 50, unique = true)
+    private String fullName;
 
     @OneToOne
     @JoinColumn(unique = true)
@@ -76,17 +73,17 @@ public class ApplicationUser implements Serializable {
         this.inGame = inGame;
     }
 
-    public String getName() {
-        return this.name;
+    public String getZaloName() {
+        return this.zaloName;
     }
 
-    public ApplicationUser name(String name) {
-        this.setName(name);
+    public ApplicationUser zaloName(String zaloName) {
+        this.setZaloName(zaloName);
         return this;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setZaloName(String zaloName) {
+        this.zaloName = zaloName;
     }
 
     public String getPhone() {
@@ -115,30 +112,17 @@ public class ApplicationUser implements Serializable {
         this.age = age;
     }
 
-    public Instant getStartDate() {
-        return this.startDate;
+    public String getFullName() {
+        return this.fullName;
     }
 
-    public ApplicationUser startDate(Instant startDate) {
-        this.setStartDate(startDate);
+    public ApplicationUser fullName(String fullName) {
+        this.setFullName(fullName);
         return this;
     }
 
-    public void setStartDate(Instant startDate) {
-        this.startDate = startDate;
-    }
-
-    public Instant getEndDate() {
-        return this.endDate;
-    }
-
-    public ApplicationUser endDate(Instant endDate) {
-        this.setEndDate(endDate);
-        return this;
-    }
-
-    public void setEndDate(Instant endDate) {
-        this.endDate = endDate;
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 
     public User getUser() {
@@ -179,11 +163,10 @@ public class ApplicationUser implements Serializable {
         return "ApplicationUser{" +
             "id=" + getId() +
             ", inGame='" + getInGame() + "'" +
-            ", name='" + getName() + "'" +
+            ", zaloName='" + getZaloName() + "'" +
             ", phone='" + getPhone() + "'" +
             ", age=" + getAge() +
-            ", startDate='" + getStartDate() + "'" +
-            ", endDate='" + getEndDate() + "'" +
+            ", fullName='" + getFullName() + "'" +
             "}";
     }
 }

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Button, Row, Col } from 'reactstrap';
-import { Translate, TextFormat } from 'react-jhipster';
+import { Translate } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
@@ -39,11 +39,11 @@ export const ApplicationUserDetail = () => {
           </dt>
           <dd>{applicationUserEntity.inGame}</dd>
           <dt>
-            <span id="name">
-              <Translate contentKey="toolaoeApp.applicationUser.name">Name</Translate>
+            <span id="zaloName">
+              <Translate contentKey="toolaoeApp.applicationUser.zaloName">Zalo Name</Translate>
             </span>
           </dt>
-          <dd>{applicationUserEntity.name}</dd>
+          <dd>{applicationUserEntity.zaloName}</dd>
           <dt>
             <span id="phone">
               <Translate contentKey="toolaoeApp.applicationUser.phone">Phone</Translate>
@@ -57,29 +57,15 @@ export const ApplicationUserDetail = () => {
           </dt>
           <dd>{applicationUserEntity.age}</dd>
           <dt>
-            <span id="startDate">
-              <Translate contentKey="toolaoeApp.applicationUser.startDate">Start Date</Translate>
+            <span id="fullName">
+              <Translate contentKey="toolaoeApp.applicationUser.fullName">Full Name</Translate>
             </span>
           </dt>
-          <dd>
-            {applicationUserEntity.startDate ? (
-              <TextFormat value={applicationUserEntity.startDate} type="date" format={APP_DATE_FORMAT} />
-            ) : null}
-          </dd>
-          <dt>
-            <span id="endDate">
-              <Translate contentKey="toolaoeApp.applicationUser.endDate">End Date</Translate>
-            </span>
-          </dt>
-          <dd>
-            {applicationUserEntity.endDate ? (
-              <TextFormat value={applicationUserEntity.endDate} type="date" format={APP_DATE_FORMAT} />
-            ) : null}
-          </dd>
+          <dd>{applicationUserEntity.fullName}</dd>
           <dt>
             <Translate contentKey="toolaoeApp.applicationUser.user">User</Translate>
           </dt>
-          <dd>{applicationUserEntity.user ? applicationUserEntity.user.id : ''}</dd>
+          <dd>{applicationUserEntity.user ? applicationUserEntity.user.login : ''}</dd>
         </dl>
         <Button tag={Link} to="/application-user" replace color="info" data-cy="entityDetailsBackButton">
           <FontAwesomeIcon icon="arrow-left" />{' '}

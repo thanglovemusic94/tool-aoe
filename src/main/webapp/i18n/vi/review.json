@@ -21,9 +21,8 @@
       "point": "Point",
       "userReviewId": "User Review Id",
       "type": "Type",
-      "startDate": "Start Date",
-      "endDate": "End Date",
-      "ppplicationUser": "Ppplication User"
+      "status": "Status",
+      "applicationUser": "Application User"
     }
   }
 }

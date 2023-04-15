@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button, Table } from 'reactstrap';
-import { Translate, TextFormat } from 'react-jhipster';
+import { Translate, getSortState, JhiPagination, JhiItemCount } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
+import { ASC, DESC, ITEMS_PER_PAGE, SORT } from 'app/shared/util/pagination.constants';
+import { overridePaginationStateWithQueryParams } from 'app/shared/util/entity-utils';
 import { useAppDispatch, useAppSelector } from 'app/config/store';
 
 import { IApplicationUser } from 'app/shared/model/application-user.model';
@@ -16,15 +18,67 @@ export const ApplicationUser = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const [paginationState, setPaginationState] = useState(
+    overridePaginationStateWithQueryParams(getSortState(location, ITEMS_PER_PAGE, 'id'), location.search)
+  );
+
   const applicationUserList = useAppSelector(state => state.applicationUser.entities);
   const loading = useAppSelector(state => state.applicationUser.loading);
+  const totalItems = useAppSelector(state => state.applicationUser.totalItems);
+
+  const getAllEntities = () => {
+    dispatch(
+      getEntities({
+        page: paginationState.activePage - 1,
+        size: paginationState.itemsPerPage,
+        sort: `${paginationState.sort},${paginationState.order}`,
+      })
+    );
+  };
+
+  const sortEntities = () => {
+    getAllEntities();
+    const endURL = `?page=${paginationState.activePage}&sort=${paginationState.sort},${paginationState.order}`;
+    if (location.search !== endURL) {
+      navigate(`${location.pathname}${endURL}`);
+    }
+  };
 
   useEffect(() => {
-    dispatch(getEntities({}));
-  }, []);
+    sortEntities();
+  }, [paginationState.activePage, paginationState.order, paginationState.sort]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const page = params.get('page');
+    const sort = params.get(SORT);
+    if (page && sort) {
+      const sortSplit = sort.split(',');
+      setPaginationState({
+        ...paginationState,
+        activePage: +page,
+        sort: sortSplit[0],
+        order: sortSplit[1],
+      });
+    }
+  }, [location.search]);
+
+  const sort = p => () => {
+    setPaginationState({
+      ...paginationState,
+      order: paginationState.order === ASC ? DESC : ASC,
+      sort: p,
+    });
+  };
+
+  const handlePagination = currentPage =>
+    setPaginationState({
+      ...paginationState,
+      activePage: currentPage,
+    });
 
   const handleSyncList = () => {
-    dispatch(getEntities({}));
+    sortEntities();
   };
 
   return (
@@ -48,29 +102,26 @@ export const ApplicationUser = () => {
           <Table responsive>
             <thead>
               <tr>
-                <th>
-                  <Translate contentKey="toolaoeApp.applicationUser.id">ID</Translate>
+                <th className="hand" onClick={sort('id')}>
+                  <Translate contentKey="toolaoeApp.applicationUser.id">ID</Translate> <FontAwesomeIcon icon="sort" />
+                </th>
+                <th className="hand" onClick={sort('inGame')}>
+                  <Translate contentKey="toolaoeApp.applicationUser.inGame">In Game</Translate> <FontAwesomeIcon icon="sort" />
+                </th>
+                <th className="hand" onClick={sort('zaloName')}>
+                  <Translate contentKey="toolaoeApp.applicationUser.zaloName">Zalo Name</Translate> <FontAwesomeIcon icon="sort" />
+                </th>
+                <th className="hand" onClick={sort('phone')}>
+                  <Translate contentKey="toolaoeApp.applicationUser.phone">Phone</Translate> <FontAwesomeIcon icon="sort" />
+                </th>
+                <th className="hand" onClick={sort('age')}>
+                  <Translate contentKey="toolaoeApp.applicationUser.age">Age</Translate> <FontAwesomeIcon icon="sort" />
+                </th>
+                <th className="hand" onClick={sort('fullName')}>
+                  <Translate contentKey="toolaoeApp.applicationUser.fullName">Full Name</Translate> <FontAwesomeIcon icon="sort" />
                 </th>
                 <th>
-                  <Translate contentKey="toolaoeApp.applicationUser.inGame">In Game</Translate>
-                </th>
-                <th>
-                  <Translate contentKey="toolaoeApp.applicationUser.name">Name</Translate>
-                </th>
-                <th>
-                  <Translate contentKey="toolaoeApp.applicationUser.phone">Phone</Translate>
-                </th>
-                <th>
-                  <Translate contentKey="toolaoeApp.applicationUser.age">Age</Translate>
-                </th>
-                <th>
-                  <Translate contentKey="toolaoeApp.applicationUser.startDate">Start Date</Translate>
-                </th>
-                <th>
-                  <Translate contentKey="toolaoeApp.applicationUser.endDate">End Date</Translate>
-                </th>
-                <th>
-                  <Translate contentKey="toolaoeApp.applicationUser.user">User</Translate>
+                  <Translate contentKey="toolaoeApp.applicationUser.user">User</Translate> <FontAwesomeIcon icon="sort" />
                 </th>
                 <th />
               </tr>
@@ -84,18 +135,11 @@ export const ApplicationUser = () => {
                     </Button>
                   </td>
                   <td>{applicationUser.inGame}</td>
-                  <td>{applicationUser.name}</td>
+                  <td>{applicationUser.zaloName}</td>
                   <td>{applicationUser.phone}</td>
                   <td>{applicationUser.age}</td>
-                  <td>
-                    {applicationUser.startDate ? (
-                      <TextFormat type="date" value={applicationUser.startDate} format={APP_DATE_FORMAT} />
-                    ) : null}
-                  </td>
-                  <td>
-                    {applicationUser.endDate ? <TextFormat type="date" value={applicationUser.endDate} format={APP_DATE_FORMAT} /> : null}
-                  </td>
-                  <td>{applicationUser.user ? applicationUser.user.id : ''}</td>
+                  <td>{applicationUser.fullName}</td>
+                  <td>{applicationUser.user ? applicationUser.user.login : ''}</td>
                   <td className="text-end">
                     <div className="btn-group flex-btn-group-container">
                       <Button
@@ -112,7 +156,7 @@ export const ApplicationUser = () => {
                       </Button>
                       <Button
                         tag={Link}
-                        to={`/application-user/${applicationUser.id}/edit`}
+                        to={`/application-user/${applicationUser.id}/edit?page=${paginationState.activePage}&sort=${paginationState.sort},${paginationState.order}`}
                         color="primary"
                         size="sm"
                         data-cy="entityEditButton"
@@ -124,7 +168,7 @@ export const ApplicationUser = () => {
                       </Button>
                       <Button
                         tag={Link}
-                        to={`/application-user/${applicationUser.id}/delete`}
+                        to={`/application-user/${applicationUser.id}/delete?page=${paginationState.activePage}&sort=${paginationState.sort},${paginationState.order}`}
                         color="danger"
                         size="sm"
                         data-cy="entityDeleteButton"
@@ -148,6 +192,24 @@ export const ApplicationUser = () => {
           )
         )}
       </div>
+      {totalItems ? (
+        <div className={applicationUserList && applicationUserList.length > 0 ? '' : 'd-none'}>
+          <div className="justify-content-center d-flex">
+            <JhiItemCount page={paginationState.activePage} total={totalItems} itemsPerPage={paginationState.itemsPerPage} i18nEnabled />
+          </div>
+          <div className="justify-content-center d-flex">
+            <JhiPagination
+              activePage={paginationState.activePage}
+              onSelect={handlePagination}
+              maxButtons={5}
+              itemsPerPage={paginationState.itemsPerPage}
+              totalItems={totalItems}
+            />
+          </div>
+        </div>
+      ) : (
+        ''
+      )}
     </div>
   );
 };

@@ -28,7 +28,7 @@ export const ApplicationUserUpdate = () => {
   const updateSuccess = useAppSelector(state => state.applicationUser.updateSuccess);
 
   const handleClose = () => {
-    navigate('/application-user');
+    navigate('/application-user' + location.search);
   };
 
   useEffect(() => {
@@ -48,9 +48,6 @@ export const ApplicationUserUpdate = () => {
   }, [updateSuccess]);
 
   const saveEntity = values => {
-    values.startDate = convertDateTimeToServer(values.startDate);
-    values.endDate = convertDateTimeToServer(values.endDate);
-
     const entity = {
       ...applicationUserEntity,
       ...values,
@@ -66,14 +63,9 @@ export const ApplicationUserUpdate = () => {
 
   const defaultValues = () =>
     isNew
-      ? {
-          startDate: displayDefaultDateTime(),
-          endDate: displayDefaultDateTime(),
-        }
+      ? {}
       : {
           ...applicationUserEntity,
-          startDate: convertDateTimeFromServer(applicationUserEntity.startDate),
-          endDate: convertDateTimeFromServer(applicationUserEntity.endDate),
           user: applicationUserEntity?.user?.id,
         };
 
@@ -113,10 +105,10 @@ export const ApplicationUserUpdate = () => {
                 }}
               />
               <ValidatedField
-                label={translate('toolaoeApp.applicationUser.name')}
-                id="application-user-name"
-                name="name"
-                data-cy="name"
+                label={translate('toolaoeApp.applicationUser.zaloName')}
+                id="application-user-zaloName"
+                name="zaloName"
+                data-cy="zaloName"
                 type="text"
                 validate={{
                   maxLength: { value: 50, message: translate('entity.validation.maxlength', { max: 50 }) },
@@ -145,20 +137,14 @@ export const ApplicationUserUpdate = () => {
                 }}
               />
               <ValidatedField
-                label={translate('toolaoeApp.applicationUser.startDate')}
-                id="application-user-startDate"
-                name="startDate"
-                data-cy="startDate"
-                type="datetime-local"
-                placeholder="YYYY-MM-DD HH:mm"
-              />
-              <ValidatedField
-                label={translate('toolaoeApp.applicationUser.endDate')}
-                id="application-user-endDate"
-                name="endDate"
-                data-cy="endDate"
-                type="datetime-local"
-                placeholder="YYYY-MM-DD HH:mm"
+                label={translate('toolaoeApp.applicationUser.fullName')}
+                id="application-user-fullName"
+                name="fullName"
+                data-cy="fullName"
+                type="text"
+                validate={{
+                  maxLength: { value: 50, message: translate('entity.validation.maxlength', { max: 50 }) },
+                }}
               />
               <ValidatedField
                 id="application-user-user"
@@ -171,7 +157,7 @@ export const ApplicationUserUpdate = () => {
                 {users
                   ? users.map(otherEntity => (
                       <option value={otherEntity.id} key={otherEntity.id}>
-                        {otherEntity.id}
+                        {otherEntity.login}
                       </option>
                     ))
                   : null}

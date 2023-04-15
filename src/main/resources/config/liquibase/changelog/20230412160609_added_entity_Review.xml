@@ -23,19 +23,14 @@
             <column name="type" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
-            <column name="start_date" type="${datetimeType}">
+            <column name="status" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
-            <column name="end_date" type="${datetimeType}">
-                <constraints nullable="true" />
-            </column>
-            <column name="ppplication_user_id" type="bigint">
+            <column name="application_user_id" type="bigint">
                 <constraints nullable="true" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
-        <dropDefaultValue tableName="review" columnName="start_date" columnDataType="${datetimeType}"/>
-        <dropDefaultValue tableName="review" columnName="end_date" columnDataType="${datetimeType}"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
@@ -58,8 +53,7 @@
             <column name="point" type="numeric"/>
             <column name="user_review_id" type="numeric"/>
             <column name="type" type="string"/>
-            <column name="start_date" type="date"/>
-            <column name="end_date" type="date"/>
+            <column name="status" type="string"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
         </loadData>
     </changeSet>

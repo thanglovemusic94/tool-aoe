@@ -19,11 +19,10 @@
       },
       "id": "ID",
       "inGame": "In Game",
-      "name": "Name",
+      "zaloName": "Zalo Name",
       "phone": "Phone",
       "age": "Age",
-      "startDate": "Start Date",
-      "endDate": "End Date",
+      "fullName": "Full Name",
       "user": "User"
     }
   }

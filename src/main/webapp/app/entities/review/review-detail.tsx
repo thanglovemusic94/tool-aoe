@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Button, Row, Col } from 'reactstrap';
-import { Translate, TextFormat } from 'react-jhipster';
+import { Translate } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
@@ -51,21 +51,15 @@ export const ReviewDetail = () => {
           </dt>
           <dd>{reviewEntity.type}</dd>
           <dt>
-            <span id="startDate">
-              <Translate contentKey="toolaoeApp.review.startDate">Start Date</Translate>
+            <span id="status">
+              <Translate contentKey="toolaoeApp.review.status">Status</Translate>
             </span>
           </dt>
-          <dd>{reviewEntity.startDate ? <TextFormat value={reviewEntity.startDate} type="date" format={APP_DATE_FORMAT} /> : null}</dd>
+          <dd>{reviewEntity.status}</dd>
           <dt>
-            <span id="endDate">
-              <Translate contentKey="toolaoeApp.review.endDate">End Date</Translate>
-            </span>
+            <Translate contentKey="toolaoeApp.review.applicationUser">Application User</Translate>
           </dt>
-          <dd>{reviewEntity.endDate ? <TextFormat value={reviewEntity.endDate} type="date" format={APP_DATE_FORMAT} /> : null}</dd>
-          <dt>
-            <Translate contentKey="toolaoeApp.review.ppplicationUser">Ppplication User</Translate>
-          </dt>
-          <dd>{reviewEntity.ppplicationUser ? reviewEntity.ppplicationUser.inGame : ''}</dd>
+          <dd>{reviewEntity.applicationUser ? reviewEntity.applicationUser.inGame : ''}</dd>
         </dl>
         <Button tag={Link} to="/review" replace color="info" data-cy="entityDetailsBackButton">
           <FontAwesomeIcon icon="arrow-left" />{' '}

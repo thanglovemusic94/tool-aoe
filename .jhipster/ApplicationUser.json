@@ -1,7 +1,7 @@
 {
   "applications": "*",
   "changelogDate": "20230412195039",
-  "dto": "no",
+  "dto": "mapstruct",
   "embedded": false,
   "entityTableName": "application_user",
   "fields": [
@@ -12,7 +12,7 @@
       "fieldValidateRulesMaxlength": "50"
     },
     {
-      "fieldName": "name",
+      "fieldName": "zaloName",
       "fieldType": "String",
       "fieldValidateRules": ["maxlength", "unique"],
       "fieldValidateRulesMaxlength": "50"
@@ -31,27 +31,25 @@
       "fieldValidateRulesMin": "6"
     },
     {
-      "fieldName": "startDate",
-      "fieldType": "Instant"
-    },
-    {
-      "fieldName": "endDate",
-      "fieldType": "Instant"
+      "fieldName": "fullName",
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength", "unique"],
+      "fieldValidateRulesMaxlength": "50"
     }
   ],
   "fluentMethods": true,
   "jpaMetamodelFiltering": false,
   "name": "ApplicationUser",
-  "pagination": "no",
+  "pagination": "pagination",
   "readOnly": false,
   "relationships": [
     {
-      "otherEntityField": "id",
+      "otherEntityField": "login",
       "otherEntityName": "user",
       "ownerSide": true,
       "relationshipName": "user",
       "relationshipType": "one-to-one"
     }
   ],
-  "service": "no"
+  "service": "serviceImpl"
 }

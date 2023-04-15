@@ -2,22 +2,31 @@ package com.toolaoe.web.rest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.toolaoe.IntegrationTest;
 import com.toolaoe.domain.ApplicationUser;
 import com.toolaoe.repository.ApplicationUserRepository;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
+import com.toolaoe.service.ApplicationUserService;
+import com.toolaoe.service.dto.ApplicationUserDTO;
+import com.toolaoe.service.mapper.ApplicationUserMapper;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
 import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -27,6 +36,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Integration tests for the {@link ApplicationUserResource} REST controller.
  */
 @IntegrationTest
+@ExtendWith(MockitoExtension.class)
 @AutoConfigureMockMvc
 @WithMockUser
 class ApplicationUserResourceIT {
@@ -34,8 +44,8 @@ class ApplicationUserResourceIT {
     private static final String DEFAULT_IN_GAME = "AAAAAAAAAA";
     private static final String UPDATED_IN_GAME = "BBBBBBBBBB";
 
-    private static final String DEFAULT_NAME = "AAAAAAAAAA";
-    private static final String UPDATED_NAME = "BBBBBBBBBB";
+    private static final String DEFAULT_ZALO_NAME = "AAAAAAAAAA";
+    private static final String UPDATED_ZALO_NAME = "BBBBBBBBBB";
 
     private static final String DEFAULT_PHONE = "AAAAAAAAAA";
     private static final String UPDATED_PHONE = "BBBBBBBBBB";
@@ -43,11 +53,8 @@ class ApplicationUserResourceIT {
     private static final Integer DEFAULT_AGE = 6;
     private static final Integer UPDATED_AGE = 7;
 
-    private static final Instant DEFAULT_START_DATE = Instant.ofEpochMilli(0L);
-    private static final Instant UPDATED_START_DATE = Instant.now().truncatedTo(ChronoUnit.MILLIS);
-
-    private static final Instant DEFAULT_END_DATE = Instant.ofEpochMilli(0L);
-    private static final Instant UPDATED_END_DATE = Instant.now().truncatedTo(ChronoUnit.MILLIS);
+    private static final String DEFAULT_FULL_NAME = "AAAAAAAAAA";
+    private static final String UPDATED_FULL_NAME = "BBBBBBBBBB";
 
     private static final String ENTITY_API_URL = "/api/application-users";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
@@ -57,6 +64,15 @@ class ApplicationUserResourceIT {
 
     @Autowired
     private ApplicationUserRepository applicationUserRepository;
+
+    @Mock
+    private ApplicationUserRepository applicationUserRepositoryMock;
+
+    @Autowired
+    private ApplicationUserMapper applicationUserMapper;
+
+    @Mock
+    private ApplicationUserService applicationUserServiceMock;
 
     @Autowired
     private EntityManager em;
@@ -75,11 +91,10 @@ class ApplicationUserResourceIT {
     public static ApplicationUser createEntity(EntityManager em) {
         ApplicationUser applicationUser = new ApplicationUser()
             .inGame(DEFAULT_IN_GAME)
-            .name(DEFAULT_NAME)
+            .zaloName(DEFAULT_ZALO_NAME)
             .phone(DEFAULT_PHONE)
             .age(DEFAULT_AGE)
-            .startDate(DEFAULT_START_DATE)
-            .endDate(DEFAULT_END_DATE);
+            .fullName(DEFAULT_FULL_NAME);
         return applicationUser;
     }
 
@@ -92,11 +107,10 @@ class ApplicationUserResourceIT {
     public static ApplicationUser createUpdatedEntity(EntityManager em) {
         ApplicationUser applicationUser = new ApplicationUser()
             .inGame(UPDATED_IN_GAME)
-            .name(UPDATED_NAME)
+            .zaloName(UPDATED_ZALO_NAME)
             .phone(UPDATED_PHONE)
             .age(UPDATED_AGE)
-            .startDate(UPDATED_START_DATE)
-            .endDate(UPDATED_END_DATE);
+            .fullName(UPDATED_FULL_NAME);
         return applicationUser;
     }
 
@@ -110,9 +124,10 @@ class ApplicationUserResourceIT {
     void createApplicationUser() throws Exception {
         int databaseSizeBeforeCreate = applicationUserRepository.findAll().size();
         // Create the ApplicationUser
+        ApplicationUserDTO applicationUserDTO = applicationUserMapper.toDto(applicationUser);
         restApplicationUserMockMvc
             .perform(
-                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(applicationUser))
+                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(applicationUserDTO))
             )
             .andExpect(status().isCreated());
 
@@ -121,11 +136,10 @@ class ApplicationUserResourceIT {
         assertThat(applicationUserList).hasSize(databaseSizeBeforeCreate + 1);
         ApplicationUser testApplicationUser = applicationUserList.get(applicationUserList.size() - 1);
         assertThat(testApplicationUser.getInGame()).isEqualTo(DEFAULT_IN_GAME);
-        assertThat(testApplicationUser.getName()).isEqualTo(DEFAULT_NAME);
+        assertThat(testApplicationUser.getZaloName()).isEqualTo(DEFAULT_ZALO_NAME);
         assertThat(testApplicationUser.getPhone()).isEqualTo(DEFAULT_PHONE);
         assertThat(testApplicationUser.getAge()).isEqualTo(DEFAULT_AGE);
-        assertThat(testApplicationUser.getStartDate()).isEqualTo(DEFAULT_START_DATE);
-        assertThat(testApplicationUser.getEndDate()).isEqualTo(DEFAULT_END_DATE);
+        assertThat(testApplicationUser.getFullName()).isEqualTo(DEFAULT_FULL_NAME);
     }
 
     @Test
@@ -133,13 +147,14 @@ class ApplicationUserResourceIT {
     void createApplicationUserWithExistingId() throws Exception {
         // Create the ApplicationUser with an existing ID
         applicationUser.setId(1L);
+        ApplicationUserDTO applicationUserDTO = applicationUserMapper.toDto(applicationUser);
 
         int databaseSizeBeforeCreate = applicationUserRepository.findAll().size();
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restApplicationUserMockMvc
             .perform(
-                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(applicationUser))
+                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(applicationUserDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -161,11 +176,27 @@ class ApplicationUserResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(applicationUser.getId().intValue())))
             .andExpect(jsonPath("$.[*].inGame").value(hasItem(DEFAULT_IN_GAME)))
-            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
+            .andExpect(jsonPath("$.[*].zaloName").value(hasItem(DEFAULT_ZALO_NAME)))
             .andExpect(jsonPath("$.[*].phone").value(hasItem(DEFAULT_PHONE)))
             .andExpect(jsonPath("$.[*].age").value(hasItem(DEFAULT_AGE)))
-            .andExpect(jsonPath("$.[*].startDate").value(hasItem(DEFAULT_START_DATE.toString())))
-            .andExpect(jsonPath("$.[*].endDate").value(hasItem(DEFAULT_END_DATE.toString())));
+            .andExpect(jsonPath("$.[*].fullName").value(hasItem(DEFAULT_FULL_NAME)));
+    }
+
+    @SuppressWarnings({ "unchecked" })
+    void getAllApplicationUsersWithEagerRelationshipsIsEnabled() throws Exception {
+        when(applicationUserServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
+
+        restApplicationUserMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
+
+        verify(applicationUserServiceMock, times(1)).findAllWithEagerRelationships(any());
+    }
+
+    @SuppressWarnings({ "unchecked" })
+    void getAllApplicationUsersWithEagerRelationshipsIsNotEnabled() throws Exception {
+        when(applicationUserServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
+
+        restApplicationUserMockMvc.perform(get(ENTITY_API_URL + "?eagerload=false")).andExpect(status().isOk());
+        verify(applicationUserRepositoryMock, times(1)).findAll(any(Pageable.class));
     }
 
     @Test
@@ -181,11 +212,10 @@ class ApplicationUserResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(applicationUser.getId().intValue()))
             .andExpect(jsonPath("$.inGame").value(DEFAULT_IN_GAME))
-            .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
+            .andExpect(jsonPath("$.zaloName").value(DEFAULT_ZALO_NAME))
             .andExpect(jsonPath("$.phone").value(DEFAULT_PHONE))
             .andExpect(jsonPath("$.age").value(DEFAULT_AGE))
-            .andExpect(jsonPath("$.startDate").value(DEFAULT_START_DATE.toString()))
-            .andExpect(jsonPath("$.endDate").value(DEFAULT_END_DATE.toString()));
+            .andExpect(jsonPath("$.fullName").value(DEFAULT_FULL_NAME));
     }
 
     @Test
@@ -209,17 +239,17 @@ class ApplicationUserResourceIT {
         em.detach(updatedApplicationUser);
         updatedApplicationUser
             .inGame(UPDATED_IN_GAME)
-            .name(UPDATED_NAME)
+            .zaloName(UPDATED_ZALO_NAME)
             .phone(UPDATED_PHONE)
             .age(UPDATED_AGE)
-            .startDate(UPDATED_START_DATE)
-            .endDate(UPDATED_END_DATE);
+            .fullName(UPDATED_FULL_NAME);
+        ApplicationUserDTO applicationUserDTO = applicationUserMapper.toDto(updatedApplicationUser);
 
         restApplicationUserMockMvc
             .perform(
-                put(ENTITY_API_URL_ID, updatedApplicationUser.getId())
+                put(ENTITY_API_URL_ID, applicationUserDTO.getId())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(updatedApplicationUser))
+                    .content(TestUtil.convertObjectToJsonBytes(applicationUserDTO))
             )
             .andExpect(status().isOk());
 
@@ -228,11 +258,10 @@ class ApplicationUserResourceIT {
         assertThat(applicationUserList).hasSize(databaseSizeBeforeUpdate);
         ApplicationUser testApplicationUser = applicationUserList.get(applicationUserList.size() - 1);
         assertThat(testApplicationUser.getInGame()).isEqualTo(UPDATED_IN_GAME);
-        assertThat(testApplicationUser.getName()).isEqualTo(UPDATED_NAME);
+        assertThat(testApplicationUser.getZaloName()).isEqualTo(UPDATED_ZALO_NAME);
         assertThat(testApplicationUser.getPhone()).isEqualTo(UPDATED_PHONE);
         assertThat(testApplicationUser.getAge()).isEqualTo(UPDATED_AGE);
-        assertThat(testApplicationUser.getStartDate()).isEqualTo(UPDATED_START_DATE);
-        assertThat(testApplicationUser.getEndDate()).isEqualTo(UPDATED_END_DATE);
+        assertThat(testApplicationUser.getFullName()).isEqualTo(UPDATED_FULL_NAME);
     }
 
     @Test
@@ -241,12 +270,15 @@ class ApplicationUserResourceIT {
         int databaseSizeBeforeUpdate = applicationUserRepository.findAll().size();
         applicationUser.setId(count.incrementAndGet());
 
+        // Create the ApplicationUser
+        ApplicationUserDTO applicationUserDTO = applicationUserMapper.toDto(applicationUser);
+
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restApplicationUserMockMvc
             .perform(
-                put(ENTITY_API_URL_ID, applicationUser.getId())
+                put(ENTITY_API_URL_ID, applicationUserDTO.getId())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(applicationUser))
+                    .content(TestUtil.convertObjectToJsonBytes(applicationUserDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -261,12 +293,15 @@ class ApplicationUserResourceIT {
         int databaseSizeBeforeUpdate = applicationUserRepository.findAll().size();
         applicationUser.setId(count.incrementAndGet());
 
+        // Create the ApplicationUser
+        ApplicationUserDTO applicationUserDTO = applicationUserMapper.toDto(applicationUser);
+
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restApplicationUserMockMvc
             .perform(
                 put(ENTITY_API_URL_ID, count.incrementAndGet())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(applicationUser))
+                    .content(TestUtil.convertObjectToJsonBytes(applicationUserDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -281,10 +316,13 @@ class ApplicationUserResourceIT {
         int databaseSizeBeforeUpdate = applicationUserRepository.findAll().size();
         applicationUser.setId(count.incrementAndGet());
 
+        // Create the ApplicationUser
+        ApplicationUserDTO applicationUserDTO = applicationUserMapper.toDto(applicationUser);
+
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restApplicationUserMockMvc
             .perform(
-                put(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(applicationUser))
+                put(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(applicationUserDTO))
             )
             .andExpect(status().isMethodNotAllowed());
 
@@ -305,7 +343,7 @@ class ApplicationUserResourceIT {
         ApplicationUser partialUpdatedApplicationUser = new ApplicationUser();
         partialUpdatedApplicationUser.setId(applicationUser.getId());
 
-        partialUpdatedApplicationUser.name(UPDATED_NAME).phone(UPDATED_PHONE);
+        partialUpdatedApplicationUser.zaloName(UPDATED_ZALO_NAME).phone(UPDATED_PHONE);
 
         restApplicationUserMockMvc
             .perform(
@@ -320,11 +358,10 @@ class ApplicationUserResourceIT {
         assertThat(applicationUserList).hasSize(databaseSizeBeforeUpdate);
         ApplicationUser testApplicationUser = applicationUserList.get(applicationUserList.size() - 1);
         assertThat(testApplicationUser.getInGame()).isEqualTo(DEFAULT_IN_GAME);
-        assertThat(testApplicationUser.getName()).isEqualTo(UPDATED_NAME);
+        assertThat(testApplicationUser.getZaloName()).isEqualTo(UPDATED_ZALO_NAME);
         assertThat(testApplicationUser.getPhone()).isEqualTo(UPDATED_PHONE);
         assertThat(testApplicationUser.getAge()).isEqualTo(DEFAULT_AGE);
-        assertThat(testApplicationUser.getStartDate()).isEqualTo(DEFAULT_START_DATE);
-        assertThat(testApplicationUser.getEndDate()).isEqualTo(DEFAULT_END_DATE);
+        assertThat(testApplicationUser.getFullName()).isEqualTo(DEFAULT_FULL_NAME);
     }
 
     @Test
@@ -341,11 +378,10 @@ class ApplicationUserResourceIT {
 
         partialUpdatedApplicationUser
             .inGame(UPDATED_IN_GAME)
-            .name(UPDATED_NAME)
+            .zaloName(UPDATED_ZALO_NAME)
             .phone(UPDATED_PHONE)
             .age(UPDATED_AGE)
-            .startDate(UPDATED_START_DATE)
-            .endDate(UPDATED_END_DATE);
+            .fullName(UPDATED_FULL_NAME);
 
         restApplicationUserMockMvc
             .perform(
@@ -360,11 +396,10 @@ class ApplicationUserResourceIT {
         assertThat(applicationUserList).hasSize(databaseSizeBeforeUpdate);
         ApplicationUser testApplicationUser = applicationUserList.get(applicationUserList.size() - 1);
         assertThat(testApplicationUser.getInGame()).isEqualTo(UPDATED_IN_GAME);
-        assertThat(testApplicationUser.getName()).isEqualTo(UPDATED_NAME);
+        assertThat(testApplicationUser.getZaloName()).isEqualTo(UPDATED_ZALO_NAME);
         assertThat(testApplicationUser.getPhone()).isEqualTo(UPDATED_PHONE);
         assertThat(testApplicationUser.getAge()).isEqualTo(UPDATED_AGE);
-        assertThat(testApplicationUser.getStartDate()).isEqualTo(UPDATED_START_DATE);
-        assertThat(testApplicationUser.getEndDate()).isEqualTo(UPDATED_END_DATE);
+        assertThat(testApplicationUser.getFullName()).isEqualTo(UPDATED_FULL_NAME);
     }
 
     @Test
@@ -373,12 +408,15 @@ class ApplicationUserResourceIT {
         int databaseSizeBeforeUpdate = applicationUserRepository.findAll().size();
         applicationUser.setId(count.incrementAndGet());
 
+        // Create the ApplicationUser
+        ApplicationUserDTO applicationUserDTO = applicationUserMapper.toDto(applicationUser);
+
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restApplicationUserMockMvc
             .perform(
-                patch(ENTITY_API_URL_ID, applicationUser.getId())
+                patch(ENTITY_API_URL_ID, applicationUserDTO.getId())
                     .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(applicationUser))
+                    .content(TestUtil.convertObjectToJsonBytes(applicationUserDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -393,12 +431,15 @@ class ApplicationUserResourceIT {
         int databaseSizeBeforeUpdate = applicationUserRepository.findAll().size();
         applicationUser.setId(count.incrementAndGet());
 
+        // Create the ApplicationUser
+        ApplicationUserDTO applicationUserDTO = applicationUserMapper.toDto(applicationUser);
+
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restApplicationUserMockMvc
             .perform(
                 patch(ENTITY_API_URL_ID, count.incrementAndGet())
                     .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(applicationUser))
+                    .content(TestUtil.convertObjectToJsonBytes(applicationUserDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -413,12 +454,15 @@ class ApplicationUserResourceIT {
         int databaseSizeBeforeUpdate = applicationUserRepository.findAll().size();
         applicationUser.setId(count.incrementAndGet());
 
+        // Create the ApplicationUser
+        ApplicationUserDTO applicationUserDTO = applicationUserMapper.toDto(applicationUser);
+
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restApplicationUserMockMvc
             .perform(
                 patch(ENTITY_API_URL)
                     .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(applicationUser))
+                    .content(TestUtil.convertObjectToJsonBytes(applicationUserDTO))
             )
             .andExpect(status().isMethodNotAllowed());
 

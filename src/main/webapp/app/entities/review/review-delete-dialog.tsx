@@ -25,7 +25,7 @@ export const ReviewDeleteDialog = () => {
   const updateSuccess = useAppSelector(state => state.review.updateSuccess);
 
   const handleClose = () => {
-    navigate('/review');
+    navigate('/review' + location.search);
   };
 
   useEffect(() => {

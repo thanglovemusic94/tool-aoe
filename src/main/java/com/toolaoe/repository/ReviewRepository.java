@@ -27,14 +27,14 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     }
 
     @Query(
-        value = "select distinct review from Review review left join fetch review.ppplicationUser",
+        value = "select distinct review from Review review left join fetch review.applicationUser",
         countQuery = "select count(distinct review) from Review review"
     )
     Page<Review> findAllWithToOneRelationships(Pageable pageable);
 
-    @Query("select distinct review from Review review left join fetch review.ppplicationUser")
+    @Query("select distinct review from Review review left join fetch review.applicationUser")
     List<Review> findAllWithToOneRelationships();
 
-    @Query("select review from Review review left join fetch review.ppplicationUser where review.id =:id")
+    @Query("select review from Review review left join fetch review.applicationUser where review.id =:id")
     Optional<Review> findOneWithToOneRelationships(@Param("id") Long id);
 }
